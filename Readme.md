@@ -96,7 +96,7 @@ file, thr_test.cpp. It requires C++ 17 compilation, and make sure the directory
 that contains the src and header files is in the include path.
 
 By default it ships with not using std::atomic, though you can enable the
-use of std::atomic by commenting out the #define USE_ATOMIC entry in main.hpp.
+use of std::atomic by uncommenting the #define USE_ATOMIC entry in main.hpp.
 
 
 
