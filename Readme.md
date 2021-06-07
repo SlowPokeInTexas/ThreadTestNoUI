@@ -1,6 +1,6 @@
 The purpose of this project is to validate an Intel/AMD processor feature that
 guarantees integer read/write atomicity. Having spent years leveraging
-such as the interlocked* functions in Windows (and their
+techniques such as the interlocked* functions in Windows (and their
 Linux equivalents), needless to say it came as quite a shock to me, so much so
 that, probably like you, I didn't believe it.  Before you call the Inquisition
 on me, the behaviour I'm describing is documented in Volume 3a Part 1 of the
