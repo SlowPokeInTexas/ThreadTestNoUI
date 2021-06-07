@@ -68,8 +68,11 @@ int main( int argc, char *argv[] )
 		}
 
 
+#if !defined(USE_ATOMIC)
+		logging::INFO(xsprintf("Global address is at %p. Launching %d Reader and %d Writer threads", &TargetValue, numberOfThreads, numberOfThreads));
+#else
 		logging::INFO(xsprintf("Launching %d Reader and %d Writer threads", numberOfThreads, numberOfThreads));
-
+#endif
 		//	Launch the threads
 		for( counter=0; counter < numberOfThreads; counter++ )
 		{

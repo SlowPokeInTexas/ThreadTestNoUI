@@ -50,7 +50,7 @@ using std::atomic;
 
 
 
-#define	USE_ATOMIC
+//	#define	USE_ATOMIC
 
 #include "logging.hpp"
 
