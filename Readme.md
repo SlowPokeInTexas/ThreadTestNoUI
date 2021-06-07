@@ -29,61 +29,63 @@ or writing to a single memory location that's aligned on the relevant data
 boundary, you are guaranteed that that read or write operation will be completed
 successfully before another write can partially change the value. At the moment
 you read from that memory location, your read will complete before another
-thread can alter it. It's important to note that you can take a snapshot of a
-memory location by copying it elsewhere or update it singularly, but there's
-if you need further synchronization you need to use other synchronization
-techniques. In other words, just because I can read it now and examine or copy
-out its value, does not mean that that value won't change a nanosecond after
-I read it. What's guaranteed is that it won't be changed while I'm in the
-middle of reading it.
+thread can alter it. It's important to note that while you can take a snapshot
+of a memory location by copying it elsewhere, if you need further synchronization
+you need to use other synchronization techniques. In other words, just because
+you can read it now and examine or copy out its value, does not mean that that
+value won't change a nanosecond after you've just read it. What IS guaranteed
+is that it won't be changed while you're in the middle of reading it.
 
-In any case, I thought, "I want to see this in action."  So I wrote this test
+I was incredulous, so, "Challenge Accepted!"
 My testing scenario is basically the following: Spawn an equal number of threads
 that are all trying to simultaneously read from or write to a single memory
 location. I've chosen a handful of "magic numbers" that will be randomly written
-to the 64 bit variable, and under no circumstances can the single memory
-location deviate from one of the magic numbers. That is to say, each
+to the 64 bit variable, and under no circumstances can the single memory that
+everyone is pounding deviate from one of the magic numbers. That is to say, each
 iteration in each writer thread is randomly choosing one of the magic numbers and
 writing to the single, unprotected, 64 bit unsigned integer.
 
 Simultaneously, each iteration of each reader thread is examining the value in
 the same 64 bit unsigned integer and comparing the value that was just read from
-to the collection of magic values to ensure make that the value that was read from
-the global is indeed one of the magic values. If in any case the value read is
-not one of the magic values, we know that one of the writes to the memory address
-is corrupted, meaning it didn't complete successfully before one of the other
-threads simultaneously tried to write to that memory location started writing
-a new value, representing a data integrity issue.
+to the collection of magic values to ensure that the value that was read from
+the worn-out location is indeed one of the magic values.
+
+If in any case the value read is *not* one of the magic values, we know that
+one of the writes to the memory address is corrupted, meaning it didn't
+complete successfully before one of the other threads tried to write to that
+memory location started writing a new value, representing a data integrity issue.
 
 
 I compiled the code and ran it on Linux with g++ 10.2.1, Windows with
 MSVC version 19.29.30037, and Windows with C++ Builder version 7.4 (bcc32c,
-which is based off an older port of Clang. With the exception of
-Visual C++ (which seems to have a bug related to searching a std::set; more on
-that in a future article), it behaved as predicted, except for when
+which is based off an older port of clang). With the exception of
+Visual C++ (which seems to have a bizarre bug related to searching a
+std::set; more on that in a future article), it behaved as predicted, except for when
 it didn't. More on that in a moment.
 
+## But wait, there's more...
 Satisfied-ish with the results, I added high-resolution timing information
 to the code to observe some timings and then compare them to what they would
-be if I used std::atomic.  You should absolutely use std::atomic anyway and not
-rely on the processor's built-in guaranteed atomicity, especially at a time when
+be if I used std::atomic. You should absolutely use std::atomic anyway (or
+the native compiler interlocked functions) and not rely on the processor's
+built-in hardware guaranteed atomicity, especially at a time when
 the ubiquitousness of the IA-32/x64 instruction set is rapidly becoming less of
-a given. ARM and RISC5 are either here or on the way, depending on your use case,
-and you would have to assume that they offer the same level (or any level) of
+a given. ARM and RISC5 are here and hungry, so depending on your use case,
+and you would have to verify that they offer the same level (or any level) of
 atomicity guarantees as AMD/Intel. But you should use std::atomic for not just
 for processor compatibility reasons- it turns out you should also use it for
-speed reasons.
+performance reasons.
 
-When I modified the program to use std::atomic, the performance of the program
-actually increased slightly. I tried this on both Linux and Windows and the result
-was the same.
+The kicker is when I modified the program to use std::atomic, the performance
+of the program actually increased ever-so-slightly. I tried this on both Linux
+ and Windows and the results were similar.
 
 So the moral of the story:
 1. use std::atomic for performance reasons
 2. use std::atomic for compatibility reasons
 3. If for some reason in the past you didn't use one of these and you had a
-	flag or some other integer-derived value, your stuff would have worked
-	anyway.
+	flag or some other integer-derived value that you didn't protected with
+	Interlocked reads and writes, your stuff would have worked anyway.
 
 
 ## Building
